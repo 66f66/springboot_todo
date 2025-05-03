@@ -1,10 +1,7 @@
 package me.springboot_todo.controller;
 
 import lombok.RequiredArgsConstructor;
-import me.springboot_todo.dto.SignInResponse;
-import me.springboot_todo.dto.UserDTO;
-import me.springboot_todo.dto.UsernameExistsResponse;
-import me.springboot_todo.dto.ValidationGroups;
+import me.springboot_todo.dto.*;
 import me.springboot_todo.security.CustomUserDetails;
 import me.springboot_todo.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +32,9 @@ public class UserController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<SignInResponse> signIn(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<SignInResponse> signIn(@RequestBody SignInRequest request) {
 
-        SignInResponse response = userService.signIn(userDTO.getUsername(), userDTO.getPassword());
+        SignInResponse response = userService.signIn(request);
 
         return ResponseEntity.ok(response);
     }

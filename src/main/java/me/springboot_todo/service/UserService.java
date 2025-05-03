@@ -1,6 +1,7 @@
 package me.springboot_todo.service;
 
 import lombok.RequiredArgsConstructor;
+import me.springboot_todo.dto.SignInRequest;
 import me.springboot_todo.dto.SignInResponse;
 import me.springboot_todo.dto.UserDTO;
 import me.springboot_todo.dto.UsernameExistsResponse;
@@ -68,15 +69,15 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public SignInResponse signIn(String username, String password) {
+    public SignInResponse signIn(SignInRequest request) {
 
-        User user = userRepository.findUserByUsername(username)
+        User user = userRepository.findUserByUsername(request.getUsername())
                 .orElseThrow(UsernameOrPasswordWrongException::new);
 
-        if (!passwordEncoder.matches(password, user.getPassword()))
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             throw new UsernameOrPasswordWrongException();
 
-        String token = jwtTokenProvider.generateAccessToken(username);
+        String token = jwtTokenProvider.generateAccessToken(user.getUsername());
 
         SignInResponse response = new SignInResponse();
         response.setToken(token);
