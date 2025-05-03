@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.springboot_todo.repository.TodoMyBatisRepository">
+
+    <select id="countTodos"
+            parameterType="TodoPageRequest" resultType="long">
+        SELECT COUNT(t.id)
+        FROM todos t
+        <include refid="conditions"/>
+    </select>
+
+    <select id="selectTodos"
+            parameterType="TodoPageRequest" resultType="TodoDTO">
+        SELECT *
+        FROM todos t
+        <include refid="conditions"/>
+        ORDER BY t.order_number DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <sql id="conditions">
+        <where>
+            t.user_id = #{userId}
+            <if test="search != null">
+                t.title LIKE CONCAT('%', #{search}, '%')
+                or t.description LIKE CONCAT('%', #{search}, '%')
+            </if>
+            <if test="completed != null">
+                AND t.completed = #{completed}
+            </if>
+        </where>
+    </sql>
+</mapper>

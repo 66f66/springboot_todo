@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/springboot_todo
+    username: postgres
+    password: postgres
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 20
+  jpa:
+    hibernate:
+      ddl-auto: update
+  cache:
+    type: caffeine
+    caffeine:
+      spec:
+        maximumSize=1000,
+        expireAfterWrite=30m
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: me.springboot_todo.dto
+  configuration:
+    map-underscore-to-camel-case: true
+    default-statement-timeout: 30
+springdoc:
+  swagger-ui:
+    path: /docs
+logging:
+  level:
+    root: error
+    sql: error
+    web: error
+    me:
+      springboot_todo: info
+cors:
+  origins:
+    ${CLIENT_URL:http://localhost:5173}
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
