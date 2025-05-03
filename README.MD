@@ -1,7 +1,5 @@
 #### Base64 시크릿 키
 
-[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
-
 ./gradlew bootjar
 
 docker build -t <project_name>:latest .
