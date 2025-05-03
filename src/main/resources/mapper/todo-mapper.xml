@@ -22,8 +22,8 @@
         <where>
             t.user_id = #{userId}
             <if test="search != null">
-                t.title LIKE CONCAT('%', #{search}, '%')
-                or t.description LIKE CONCAT('%', #{search}, '%')
+                AND t.title LIKE CONCAT('%', #{search}, '%')
+                OR t.description LIKE CONCAT('%', #{search}, '%')
             </if>
             <if test="completed != null">
                 AND t.completed = #{completed}
