@@ -22,5 +22,7 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+EXPOSE ${PORT:-8080}
+
 # 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]

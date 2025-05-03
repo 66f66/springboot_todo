@@ -12,16 +12,16 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalControllerAdvice {
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorDetails> handleRuntimeException(RuntimeException e,
-                                                               WebRequest request) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDetails> handleException(Exception e,
+                                                        WebRequest request) {
 
         ErrorDetails errorDetails = new ErrorDetails();
         errorDetails.setTimestamp(LocalDateTime.now());
         errorDetails.setMessage(e.getMessage());
         errorDetails.setDetails(request.getDescription(false));
 
-        System.out.println(e.getMessage());
+        System.out.println(errorDetails);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
