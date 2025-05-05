@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @GetMapping("/exists")
-    public ResponseEntity<UsernameExistsResponse> existsUser(@RequestParam(name = "q") String username) {
+    public ResponseEntity<UsernameExistsResponse> existsUsername(@RequestParam(name = "q") String username) {
 
         return ResponseEntity.ok(userService.existsUsername(username));
     }
@@ -34,17 +34,13 @@ public class UserController {
     @PostMapping("/sign-in")
     public ResponseEntity<SignInResponse> signIn(@RequestBody SignInRequest request) {
 
-        SignInResponse response = userService.signIn(request);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.signIn(request));
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/session")
     public ResponseEntity<UserDTO> getSession(@AuthenticationPrincipal CustomUserDetails user) {
 
-        UserDTO me = userService.getUser(user.getId());
-
-        return ResponseEntity.ok(me);
+        return ResponseEntity.ok(userService.getUser(user.getId()));
     }
 }
