@@ -120,11 +120,10 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TodoDTO> getTodos(Long userId, int page, String search) {
+    public Page<TodoDTO> getTodos(Long userId, String search) {
 
         TodoPageRequest request = new TodoPageRequest();
         request.setUserId(userId);
-        request.setPage(page);
         request.setSearch(search);
 
         return todoMyBatisRepository.getPage(request);

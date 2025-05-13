@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
-@Getter
 @Setter
-public class SignInResponse {
+@Getter
+public class RefreshTokenResponse {
 
-    private String accessToken;
+    private String newAccessToken;
 }

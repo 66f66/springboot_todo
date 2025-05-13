@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -39,7 +40,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String bearerToken = getTokenFromRequest(request);
 
-        if (StringUtils.hasText(bearerToken) && tokenProvider.validateToken(bearerToken)) {
+        if (StringUtils.hasText(bearerToken)) {
+
+            switch (tokenProvider.validateToken(bearerToken)) {
+
+                case EXPIRED -> {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Token expired\"}");
+                    return;
+                }
+
+                case INVALID -> {
+                    response.setStatus(HttpStatus.BAD_REQUEST.value());
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Invalid token\"}");
+                    return;
+                }
+            }
 
             String username = tokenProvider.extractSubjectFromToken(bearerToken);
 

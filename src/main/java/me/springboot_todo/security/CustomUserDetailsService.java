@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(username));
 
         Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map((role) -> new SimpleGrantedAuthority(role.getName()))
+                .map((role) -> new SimpleGrantedAuthority(role.getRoleType().name()))
                 .collect(Collectors.toSet());
 
         return new CustomUserDetails(

@@ -1,7 +1,10 @@
 package me.springboot_todo.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import me.springboot_todo.constants.ValidateTokenResult;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +18,11 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String JWT_SECRET;
 
-    @Value("${jwt.expiration}")
-    private Long JWT_EXPIRATION;
+    @Value("${jwt.access-expiration:3000}")
+    private Long JWT_ACCESS_EXPIRATION;
+
+    @Value("${jwt.refresh-expiration:90000}")
+    private Long JWT_REFRESH_EXPIRATION;
 
     private SecretKey getSigningKey() {
 
@@ -35,7 +41,12 @@ public class JwtTokenProvider {
 
     public String generateAccessToken(String username) {
 
-        return this.generateToken(username, JWT_EXPIRATION);
+        return this.generateToken(username, JWT_ACCESS_EXPIRATION);
+    }
+
+    public String generateRefreshToken(String username) {
+
+        return this.generateToken(username, JWT_REFRESH_EXPIRATION);
     }
 
     public String extractSubjectFromToken(String token) {
@@ -48,13 +59,21 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    public boolean validateToken(String token) {
+    public ValidateTokenResult validateToken(String token) {
 
-        Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parse(token);
+        try {
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token);
 
-        return true;
+            return ValidateTokenResult.VALID;
+        } catch (ExpiredJwtException e) {
+
+            return ValidateTokenResult.EXPIRED;
+        } catch (JwtException | IllegalArgumentException e) {
+
+            return ValidateTokenResult.INVALID;
+        }
     }
 }
