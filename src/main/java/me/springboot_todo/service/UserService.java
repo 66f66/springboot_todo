@@ -3,14 +3,12 @@ package me.springboot_todo.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import me.springboot_todo.constants.RoleType;
-import me.springboot_todo.constants.ValidateTokenResult;
 import me.springboot_todo.dto.*;
-import me.springboot_todo.entity.Role;
 import me.springboot_todo.entity.User;
+import me.springboot_todo.enums.Role;
+import me.springboot_todo.enums.ValidateTokenResult;
 import me.springboot_todo.exception.UsernameOrPasswordWrongException;
 import me.springboot_todo.exception.UsernameTakenException;
-import me.springboot_todo.repository.RoleRepository;
 import me.springboot_todo.repository.UserRepository;
 import me.springboot_todo.security.JwtTokenProvider;
 import me.springboot_todo.util.CookieUtil;
@@ -21,24 +19,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @RequiredArgsConstructor
 @Service
 public class UserService {
 
-    private static final int maxAge = 7 * 24 * 60 * 60;
+    private static final String COOKIE_NAME = "springboot_todo_refresh_token";
+    private static final String COOKIE_PATH = "/";
+    private static final int COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30일
 
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
 
     @Transactional
-    public void saveUser(UserDTO userDTO, RoleType roleType) {
+    public void saveUser(UserDTO userDTO, Role role) {
 
         User user = modelMapper.map(userDTO, User.class);
 
@@ -47,9 +43,7 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findByRoleType(roleType).orElseThrow());
-        user.setRoles(roles);
+        user.setRole(role);
 
         try {
 
@@ -73,7 +67,7 @@ public class UserService {
     public SignInResponse signIn(SignInRequest request,
                                  HttpServletResponse response) {
 
-        User user = userRepository.findUserByUsername(request.getUsername())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(UsernameOrPasswordWrongException::new);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
@@ -82,7 +76,7 @@ public class UserService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getUsername());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUsername());
 
-        cookieUtil.setCookie("refreshToken", refreshToken, "/", maxAge, response);
+        cookieUtil.setCookie(COOKIE_NAME, refreshToken, COOKIE_PATH, COOKIE_MAX_AGE, response);
 
         return new SignInResponse(accessToken);
     }
@@ -98,7 +92,7 @@ public class UserService {
     public RefreshTokenResponse refreshToken(HttpServletRequest request,
                                              HttpServletResponse response) {
 
-        String refreshToken = cookieUtil.getCookie(request.getCookies(), "refreshToken");
+        String refreshToken = cookieUtil.getCookie(request.getCookies(), COOKIE_NAME);
 
         if (refreshToken == null) throw new AccessDeniedException("리프레시 토큰이 없습니다");
 
@@ -110,7 +104,7 @@ public class UserService {
         String newAccessToken = jwtTokenProvider.generateAccessToken(username);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(username);
 
-        cookieUtil.setCookie("refreshToken", newRefreshToken, "/", maxAge, response);
+        cookieUtil.setCookie(COOKIE_NAME, newRefreshToken, COOKIE_PATH, COOKIE_MAX_AGE, response);
 
         return new RefreshTokenResponse(newAccessToken);
     }
@@ -118,6 +112,6 @@ public class UserService {
     public void signOut(
             HttpServletResponse response) {
 
-        cookieUtil.removeCookie("refreshToken", "/", response);
+        cookieUtil.removeCookie(COOKIE_NAME, COOKIE_PATH, response);
     }
 }

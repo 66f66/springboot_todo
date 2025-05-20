@@ -27,6 +27,7 @@ public class WebSecurityConfig {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     @Value("${cors.origins}")
     private String[] allowedOrigins;
 

@@ -1,4 +1,4 @@
-package me.springboot_todo.constants;
+package me.springboot_todo.enums;
 
 public enum ValidateTokenResult {
 

@@ -2,15 +2,15 @@ package me.springboot_todo.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.springboot_todo.constants.RoleType;
 import me.springboot_todo.dto.*;
+import me.springboot_todo.enums.Role;
 import me.springboot_todo.security.CustomUserDetails;
 import me.springboot_todo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -21,9 +21,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<Void> signUp(@RequestBody @Validated(ValidationGroups.Create.class) UserDTO userDTO) {
+    public ResponseEntity<Void> signUp(@RequestBody @Valid UserDTO userDTO) {
 
-        userService.saveUser(userDTO, RoleType.ROLE_USER);
+        userService.saveUser(userDTO, Role.ROLE_USER);
 
         return ResponseEntity.ok().build();
     }
@@ -42,8 +42,8 @@ public class UserController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/session")
-    public ResponseEntity<UserDTO> getSession(@AuthenticationPrincipal CustomUserDetails user) {
+    @GetMapping("/authentication")
+    public ResponseEntity<UserDTO> getAuthentication(@AuthenticationPrincipal CustomUserDetails user) {
 
         return ResponseEntity.ok(userService.getUser(user.getId()));
     }

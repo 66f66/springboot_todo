@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import me.springboot_todo.enums.Role;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -18,7 +19,7 @@ public class UserDTO {
     private Long id;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotBlank(message = "아이디는 필수 입력값입니다", groups = ValidationGroups.Create.class)
+    @NotBlank(message = "아이디는 필수 입력값입니다")
     @Pattern(
             regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\",./<>?]{2,20}$",
             message = "아이디는 2-20자의 영문, 숫자, 특수문자만 사용 가능합니다"
@@ -26,17 +27,19 @@ public class UserDTO {
     private String username;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotBlank(message = "비밀번호는 필수 입력값입니다", groups = ValidationGroups.Create.class)
+    @NotBlank(message = "비밀번호는 필수 입력값입니다")
     @Pattern(
             regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\",./<>?]{8,20}$",
             message = "비밀번호는 8-20자의 영문, 숫자, 특수문자만 사용 가능합니다"
     )
     private String password;
 
-    @NotBlank(message = "닉네임은 필수 입력값입니다", groups = ValidationGroups.Create.class)
+    @NotBlank(message = "닉네임은 필수 입력값입니다")
     @Pattern(
             regexp = "^[가-힣a-zA-Z0-9]{2,10}$",
             message = "닉네임은 2-10자의 한글, 영문, 숫자만 사용 가능합니다"
     )
     private String nickname;
+
+    private Role role;
 }

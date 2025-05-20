@@ -9,6 +9,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        jdbc:
+          batch_size: 100
   cache:
     type: caffeine
     caffeine:
@@ -33,6 +39,4 @@ logging:
       springboot_todo: info
 cors:
   origins:
-    ${CLIENT_URL:http://localhost:5173}
-jwt:
-  secret: ${JWT_SECRET}
+    http://localhost:5173

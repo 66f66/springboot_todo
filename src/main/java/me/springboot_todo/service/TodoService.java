@@ -3,6 +3,7 @@ package me.springboot_todo.service;
 import lombok.RequiredArgsConstructor;
 import me.springboot_todo.dto.TodoDTO;
 import me.springboot_todo.dto.TodoPageRequest;
+import me.springboot_todo.dto.UpdateOrderNumberRequest;
 import me.springboot_todo.entity.Todo;
 import me.springboot_todo.entity.User;
 import me.springboot_todo.repository.TodoMyBatisRepository;
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -33,11 +36,11 @@ public class TodoService {
         User user = userRepository.getReferenceById(userId);
         todo.setUser(user);
 
-        int orderNumber = todoRepository
+        int nextOrderNumber = todoRepository
                 .findMaxOrderNumberByUserId(userId)
                 .orElse(0)
                 + 1;
-        todo.setOrderNumber(orderNumber);
+        todo.setOrderNumber(nextOrderNumber);
 
         todoRepository.save(todo);
 
@@ -63,60 +66,27 @@ public class TodoService {
     }
 
     @Transactional
-    public void updateOrderNumber(Long id, Long userId, int newOrderNumber) {
+    public void updateOrderNumber(List<UpdateOrderNumberRequest> requests) {
 
-        Todo movedTodo = todoRepository
-                .findByIdAndUserIdForUpdate(id, userId)
-                .orElseThrow();
+        Map<Long, Integer> orderMap = requests.stream()
+                .collect(Collectors.toMap(
+                        UpdateOrderNumberRequest::getId,
+                        UpdateOrderNumberRequest::getOrderNumber
+                ));
 
-        List<Todo> todos = todoRepository.findByUserIdOrderByOrderNumber(userId);
+        List<Todo> sections = todoRepository.findAllById(orderMap.keySet());
 
-        int oldOrderNumber = movedTodo.getOrderNumber();
+        sections.forEach(section ->
+                section.setOrderNumber(orderMap.get(section.getId()))
+        );
 
-        // 같은 위치에 놓인 경우
-        if (newOrderNumber == oldOrderNumber) return;
-
-        if (newOrderNumber > oldOrderNumber) {
-            // 이동할 아이템이 리스트에서 뒤로 갈 경우
-            todos.stream()
-                    .filter(todo -> todo.getOrderNumber() > oldOrderNumber
-                            && todo.getOrderNumber() <= newOrderNumber)
-                    .forEach(todo -> todo.setOrderNumber(todo.getOrderNumber() - 1));
-        } else {
-            // 이동할 아이템이 리스트에서 앞으로 갈 경우
-            todos.stream()
-                    .filter(todo -> todo.getOrderNumber() >= newOrderNumber
-                            && todo.getOrderNumber() < oldOrderNumber)
-                    .forEach(todo -> todo.setOrderNumber(todo.getOrderNumber() + 1));
-        }
-
-        // 이동할 아이템의 순서 업데이트
-        movedTodo.setOrderNumber(newOrderNumber);
-
-        todoRepository.saveAll(todos);
-
-        todoRepository.save(movedTodo);
+        todoRepository.saveAll(sections);
     }
 
     @Transactional
-    public void deleteTodo(Long id, Long userId) {
+    public void deleteTodo(Long id) {
 
-        Todo todoToDelete = todoRepository
-                .findByIdAndUserIdForUpdate(id, userId)
-                .orElseThrow();
-
-        int deletedOrderNumber = todoToDelete.getOrderNumber();
-
-        todoRepository.delete(todoToDelete);
-
-        // 이후 항목들의 orderNumber 를 조정
-        List<Todo> todos = todoRepository.findByUserIdOrderByOrderNumber(userId);
-
-        todos.stream()
-                .filter(todo -> todo.getOrderNumber() > deletedOrderNumber)
-                .forEach(todo -> todo.setOrderNumber(todo.getOrderNumber() - 1));
-
-        todoRepository.saveAll(todos);
+        todoRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)

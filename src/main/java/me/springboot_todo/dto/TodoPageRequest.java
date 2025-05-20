@@ -15,7 +15,7 @@ public class TodoPageRequest extends BasePageRequest {
 
     private String search;
 
-    private Boolean completed;
+    private boolean completed;
 
     @Override
     protected Set<Integer> allowedSize() {

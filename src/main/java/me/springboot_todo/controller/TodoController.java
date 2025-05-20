@@ -3,15 +3,16 @@ package me.springboot_todo.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.springboot_todo.dto.TodoDTO;
-import me.springboot_todo.dto.ValidationGroups;
+import me.springboot_todo.dto.UpdateOrderNumberRequest;
 import me.springboot_todo.security.CustomUserDetails;
 import me.springboot_todo.service.TodoService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/todos")
@@ -22,7 +23,7 @@ public class TodoController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<TodoDTO> createTodo(@RequestBody @Validated(ValidationGroups.Create.class) TodoDTO todoDTO,
+    public ResponseEntity<TodoDTO> createTodo(@RequestBody @Valid TodoDTO todoDTO,
                                               @AuthenticationPrincipal CustomUserDetails user) {
 
         return ResponseEntity.ok(todoService.createTodo(user.getId(), todoDTO));
@@ -38,24 +39,19 @@ public class TodoController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{id}/order")
-    public ResponseEntity<Void> updateTodoOrder(
-            @PathVariable Long id,
-            @RequestParam int newOrderNumber,
-            @AuthenticationPrincipal CustomUserDetails user
-    ) {
+    @PatchMapping("/orders")
+    public ResponseEntity<Void> updateTodoOrderNumbers(@RequestBody List<UpdateOrderNumberRequest> requests) {
 
-        todoService.updateOrderNumber(id, user.getId(), newOrderNumber);
+        todoService.updateOrderNumber(requests);
 
         return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTodo(@PathVariable Long id,
-                                           @AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<Void> deleteTodo(@PathVariable Long id) {
 
-        todoService.deleteTodo(id, user.getId());
+        todoService.deleteTodo(id);
 
         return ResponseEntity.noContent().build();
     }
