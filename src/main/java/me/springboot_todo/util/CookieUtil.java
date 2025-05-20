@@ -24,7 +24,7 @@ public class CookieUtil {
         cookie.setSecure(isProd);
         cookie.setPath(path);
         cookie.setMaxAge(maxAge);
-        cookie.setAttribute("SameSite", "Lax");
+        cookie.setAttribute("SameSite", "None");
 
         response.addCookie(cookie);
     }
