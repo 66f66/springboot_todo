@@ -20,12 +20,12 @@ public class TodoPageRequest extends BasePageRequest {
     @Override
     protected Set<Integer> allowedSize() {
 
-        return Set.of(100);
+        return Set.of(5);
     }
 
     @Override
     protected int defaultSize() {
 
-        return 100;
+        return 5;
     }
 }

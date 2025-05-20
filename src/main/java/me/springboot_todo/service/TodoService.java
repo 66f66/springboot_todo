@@ -90,9 +90,10 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TodoDTO> getTodos(Long userId, String search) {
+    public Page<TodoDTO> getTodos(Long userId, int page, String search) {
 
         TodoPageRequest request = new TodoPageRequest();
+        request.setPage(page);
         request.setUserId(userId);
         request.setSearch(search);
 

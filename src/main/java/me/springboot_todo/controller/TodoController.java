@@ -58,9 +58,10 @@ public class TodoController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<Page<TodoDTO>> getTodos(@RequestParam(required = false) String search,
+    public ResponseEntity<Page<TodoDTO>> getTodos(@RequestParam(required = false) String q,
+                                                  @RequestParam(required = false) int page,
                                                   @AuthenticationPrincipal CustomUserDetails user) {
 
-        return ResponseEntity.ok(todoService.getTodos(user.getId(), search));
+        return ResponseEntity.ok(todoService.getTodos(user.getId(), page, q));
     }
 }
